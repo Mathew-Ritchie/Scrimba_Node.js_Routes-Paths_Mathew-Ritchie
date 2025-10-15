@@ -1,6 +1,7 @@
 import { getData } from "../public/utils/getData.js";
 import { sendResponse } from "../public/utils/sendResponse.js";
 import { parseJSONBody } from "../public/utils/parseJSONBody.js";
+import { addNewSighting } from "../public/utils/addNewSighting.js";
 
 export async function handleGet(res) {
   const data = await getData();
@@ -8,6 +9,16 @@ export async function handleGet(res) {
 }
 
 export async function handlePost(req, res) {
-  const rawBody = await parseJSONBody(req);
-  console.log("Received POST data:", rawBody);
+  try {
+    const parsedBody = await parseJSONBody(req);
+    await addNewSighting(parsedBody);
+    sendResponse(res, 201, JSON.stringify(parsedBody), "application/json");
+  } catch (err) {
+    sendResponse(
+      res,
+      400,
+      JSON.stringify({ message: "Internal Server Error" }),
+      "application/json"
+    );
+  }
 }
